@@ -1,0 +1,278 @@
+openapi: 3.0.1
+info:
+  title: Claims
+  version: '1.0'
+  description: |
+    This API provides a comprehensive system for managing insurance claims and covers. 
+
+paths:
+  /claims:
+    post:
+      tags:
+        - Claims
+      description: Create a new claim.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Claim'
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error  
+    get:
+      tags:
+        - Claims
+      description: Retrieve a list of all claims currently available in the system.
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Claim'
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error
+
+  /claims/{id}:
+    get:
+      tags:
+        - Claims
+      description: Retrieve details of a specific claim using its unique identifier.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error  
+    delete:
+      tags:
+        - Claims
+      description: Delete a specific claim using its unique identifier.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error
+
+  /covers/compute:
+    post:
+      tags:
+        - Covers
+      description: Calculate the cover information using the specified start date, end date, and cover type.
+      parameters:
+        - name: startDate
+          in: query
+          description: The starting date of the cover period to compute.
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: The ending date of the cover period to compute.
+          schema:
+            type: string
+            format: date-time
+        - name: coverType
+          in: query
+          description: Type of cover to compute (e.g., Yacht, Tanker, etc.).
+          schema:
+            $ref: '#/components/schemas/CoverType'
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error
+
+  /covers:
+    get:
+      tags:
+        - Covers
+      description: Retrieve a list of all insurance covers available in the system.
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cover'
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error
+    post:
+      tags:
+        - Covers
+      description: Create a new insurance cover by specifying the type, start and end dates, and premium.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cover'
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error
+
+  /covers/{id}:
+    get:
+      tags:
+        - Covers
+      description: Retrieve details of a specific cover using its unique identifier.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cover'
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error
+    delete:
+      tags:
+        - Covers
+      description: Delete a specific cover using its unique identifier.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error
+
+components:
+  schemas:
+
+    Claim:
+      type: object
+      description: Represents a claim made by a policyholder.
+      required:
+        - id
+        - coverId
+        - created
+        - name
+        - type
+        - damageCost
+      properties:
+        id:
+          type: string
+        coverId:
+          type: string
+        created:
+          type: string
+          format: date-time
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/ClaimType'
+        damageCost:
+          type: number
+          format: double
+      additionalProperties: false
+
+    ClaimType:
+      enum:
+        - Collision
+        - Grounding
+        - BadWeather
+        - Fire
+      type: string
+
+    Cover:
+      type: object
+      description: Represents an insurance cover for a specific period of time.
+      required:
+        - id
+        - startDate
+        - endDate
+        - type
+        - premium
+      properties:
+        id:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        type:
+          $ref: '#/components/schemas/CoverType'
+        premium:
+          type: number
+          format: double
+      additionalProperties: false
+
+    CoverType:
+      enum:
+        - Yacht
+        - PassengerShip
+        - ContainerShip
+        - BulkCarrier
+        - Tanker
+      type: string
