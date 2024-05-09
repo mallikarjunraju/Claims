@@ -1,26 +1,120 @@
-﻿using Claims.Api;
-using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Claims.Api.Tests.Fixtures;
+using Claims.Models;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using Newtonsoft.Json;
+using System.Net;
+using System.Text;
 using Xunit;
 
-namespace Claims.Tests
+namespace Claims.Api.Tests;
+
+public class ClaimsControllerTests : IClassFixture<ClaimsApiFixture>
 {
-    public class ClaimsControllerTests
+    private readonly ClaimsApiFixture _fixture;
+
+    public ClaimsControllerTests(ClaimsApiFixture fixture)
     {
-        [Fact]
-        public async Task Get_Claims()
+        ArgumentNullException.ThrowIfNull(fixture);
+
+        _fixture = fixture;
+    }
+
+    [Fact]
+    public async Task Given_CoverAndCreateClaim_When_GetClaims_ThenAllClaimsReturnedWithNewClaim()
+    {
+        // Arrange
+        string guid = await _fixture.CreateCover();
+
+        var claim = await _fixture.CreateClaim(guid);
+
+        // Act
+        var response = await _fixture.Client.GetAsync("/claims");
+
+        // Assert
+        using var _ = new AssertionScope();
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var claims = JsonConvert.DeserializeObject<IEnumerable<Claim>>(await response.Content.ReadAsStringAsync());
+
+        claims.Should().NotBeNullOrEmpty();
+        claims!.Where(c => c.Id == claim!.Id).Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task Given_CoverAndCreateClaim_When_DeleteClaim_ThenClaimDeleted()
+    {
+        // Arrange
+        string guid = await _fixture.CreateCover();
+
+        var claim = await _fixture.CreateClaim(guid);
+
+        // Act
+        var response = await _fixture.Client.DeleteAsync($"/claims/{claim.Id}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var getResponse = await _fixture.Client.GetAsync($"/claims/{claim.Id}");
+
+        getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Given_CoverAndCreateClaim_When_GetClaimById_ThenClaimReturned()
+    {
+        // Arrange
+        string guid = await _fixture.CreateCover();
+
+        var claim = await _fixture.CreateClaim(guid);
+
+        // Act
+        var response = await _fixture.Client.GetAsync($"/claims/{claim.Id}");
+
+        // Assert
+        using var _ = new AssertionScope();
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var responseClaim = JsonConvert.DeserializeObject<Claim>(await response.Content.ReadAsStringAsync());
+
+        responseClaim.Should().BeEquivalentTo(claim, option => option.Excluding(claim => claim.Created));
+    }
+
+    [Fact]
+    public async Task Given_CoverAndCreateClaim_When_CreateClaim_ThenClaimCreated()
+    {
+        // Arrange
+        string guid = await _fixture.CreateCover();
+
+        var claim = new Claim
         {
-            var application = new WebApplicationFactory<Program>()
-                .WithWebHostBuilder(_ =>
-                { });
+            Id = Guid.NewGuid().ToString(),
+            CoverId = guid,
+            Created = DateTime.UtcNow,
+            Name = "Test Claim",
+            Type = ClaimType.BadWeather,
+            DamageCost = 10
+        };
 
-            var client = application.CreateClient();
+        var claimMessage = new HttpRequestMessage(HttpMethod.Post, "/claims")
+        {
+            Content = new StringContent(JsonConvert.SerializeObject(claim), Encoding.UTF8, "application/json")
+        };
 
-            var response = await client.GetAsync("/claims");
+        // Act
+        var response = await _fixture.Client.SendAsync(claimMessage);
 
-            response.EnsureSuccessStatusCode();
+        // Assert
+        using var _ = new AssertionScope();
 
-            //TODO: Apart from ensuring 200 OK being returned, what else can be asserted?
-        }
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
 
+        var responseClaim = JsonConvert.DeserializeObject<Claim>(await response.Content.ReadAsStringAsync());
+
+        responseClaim.Should().BeEquivalentTo(
+            claim,
+            option => option.Excluding(claim => claim.Created).Excluding(claim => claim.Id));
     }
 }

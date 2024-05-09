@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace Claims.Infrastructure.Exceptions;
+﻿namespace Claims.Infrastructure.Exceptions;
 
 [Serializable]
 public class DataNotFoundException : Exception
@@ -15,10 +13,6 @@ public class DataNotFoundException : Exception
     }
 
     public DataNotFoundException(string? message, Exception? innerException) : base(message, innerException)
-    {
-    }
-
-    protected DataNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }
 }

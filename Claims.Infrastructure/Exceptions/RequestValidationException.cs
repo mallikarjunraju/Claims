@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace Claims.Infrastructure.Exceptions;
+﻿namespace Claims.Infrastructure.Exceptions;
 
 [Serializable]
 public class RequestValidationException : Exception
@@ -15,10 +13,6 @@ public class RequestValidationException : Exception
     }
 
     public RequestValidationException(string? message, Exception? innerException) : base(message, innerException)
-    {
-    }
-
-    protected RequestValidationException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }
 }

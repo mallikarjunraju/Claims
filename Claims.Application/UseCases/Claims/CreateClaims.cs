@@ -1,6 +1,7 @@
 ﻿using Claims.Application.UseCases.Audit;
 using Claims.Infrastructure.Exceptions;
 using Claims.Infrastructure.Repositories;
+using Claims.Infrastructure.Services;
 using Claims.Models;
 using MediatR;
 
@@ -10,19 +11,24 @@ public class CreateClaims : IRequestHandler<CreateClaimsRequest, Claim>
 {
     private readonly IClaimsRepository _claimsRepository;
     private readonly ICoversRepository _coversRepository;
-
     private readonly IAuditer _auditer;
+    private readonly IGlobalIdGenerator _globalIdGenerator;
 
-    public CreateClaims(IClaimsRepository claimsRepository, ICoversRepository coversRepository, IAuditer auditer)
+    public CreateClaims(
+        IClaimsRepository claimsRepository,
+        ICoversRepository coversRepository,
+        IAuditer auditer,
+        IGlobalIdGenerator globalIdGenerator)
     {
         _claimsRepository = claimsRepository;
         _coversRepository = coversRepository;
         _auditer = auditer;
+        _globalIdGenerator = globalIdGenerator;
     }
 
     public async Task<Claim> Handle(CreateClaimsRequest request, CancellationToken cancellationToken)
     {
-        string claimId = Guid.NewGuid().ToString();
+        string claimId = _globalIdGenerator.GenerateId().ToString();
 
         var cover = await _coversRepository.GetCoverByIdAsync(request.Claim.CoverId) ?? throw new DataNotFoundException("Cover not found");
 

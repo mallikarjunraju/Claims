@@ -2,6 +2,7 @@
 using Claims.Application.UseCases.Audit;
 using Claims.Infrastructure.DbContexts;
 using Claims.Infrastructure.Repositories;
+using Claims.Infrastructure.Services;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -28,5 +29,6 @@ public static class ServiceCollectionX
         services.AddScoped<ICoversRepository, CoversRepository>();
         services.AddScoped<IAuditer, Auditer>();
         services.AddMediatR(typeof(UseCasesAssemblyMarker));
+        services.AddSingleton<IGlobalIdGenerator, GlobalIdGenerator>();
     }
 }
