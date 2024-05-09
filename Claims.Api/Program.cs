@@ -1,5 +1,6 @@
 using Claims.Api.Extensions;
 using Claims.Infrastructure.DbContexts;
+using Claims.Infrastructure.Middleware;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -37,6 +38,8 @@ public sealed class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         app.UseHttpsRedirection();
 

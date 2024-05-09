@@ -3,7 +3,7 @@
 namespace Claims.Infrastructure.Exceptions;
 
 [Serializable]
-internal class DataNotFoundException : Exception
+public class DataNotFoundException : Exception
 {
 
     public DataNotFoundException()

@@ -2,6 +2,7 @@
 using Claims.Application.UseCases.Audit;
 using Claims.Infrastructure.DbContexts;
 using Claims.Infrastructure.Repositories;
+using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
@@ -12,6 +13,7 @@ public static class ServiceCollectionX
 {
     public static void AddClaimApiServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddFluentValidation(fvc => fvc.RegisterValidatorsFromAssemblyContaining<ValidatorsAssemblyMarker>());
         services.AddDbContext<AuditContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
         services.AddDbContext<InsuranceContext>(
             options =>
