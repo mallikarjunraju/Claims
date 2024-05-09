@@ -4,7 +4,7 @@
 1. Used SOLID principles whereever I can in limited time.
 1. Documentation is added.
 
-### Task 2
+## Task 2
 1. Fluent validation rules are added for the request validation.
 1. Custom exception handling is added too for specific exceptions.
 
