@@ -17,9 +17,10 @@ public class DeleteCoverById : IRequestHandler<DeleteCoverByIdRequest, Unit>
 
     public async Task<Unit> Handle(DeleteCoverByIdRequest request, CancellationToken cancellationToken)
     {
-        _auditer.AuditCover(request.Id, "DELETE");
-
-        await _coversContext.DeleteCoverByIdAsync(request.Id);
+        await Task.WhenAll(
+            Task.Run(() => _auditer.AuditCover(request.Id, "DELETE"), cancellationToken),
+                  _coversContext.DeleteCoverByIdAsync(request.Id))
+            .ConfigureAwait(false);
 
         return Unit.Value;
     }

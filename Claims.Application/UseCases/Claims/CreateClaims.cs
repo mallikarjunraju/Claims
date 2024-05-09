@@ -22,6 +22,8 @@ public class CreateClaims : IRequestHandler<CreateClaimsRequest, Claim>
 
     public async Task<Claim> Handle(CreateClaimsRequest request, CancellationToken cancellationToken)
     {
+        string claimId = Guid.NewGuid().ToString();
+
         var cover = await _coversRepository.GetCoverByIdAsync(request.Claim.CoverId) ?? throw new DataNotFoundException("Cover not found");
 
         // Created date must be within the period of the related Cover
@@ -31,14 +33,15 @@ public class CreateClaims : IRequestHandler<CreateClaimsRequest, Claim>
         }
 
         // Todo: Claim Id should be generated and sent back ...should not be present in the request
-        string claimId = Guid.NewGuid().ToString();
-
         request.Claim.Id = claimId;
-        var response = await _claimsRepository.AddClaimAsync(request.Claim).ConfigureAwait(false);
+        var claimTask = _claimsRepository.AddClaimAsync(request.Claim);
 
-        _auditer.AuditClaim(claimId, "POST");
+        await Task.WhenAll(
+            Task.Run(() => _auditer.AuditClaim(claimId, "POST"), cancellationToken),
+            claimTask)
+            .ConfigureAwait(false);
 
-        return response;
+        return claimTask.Result;
     }
 }
 

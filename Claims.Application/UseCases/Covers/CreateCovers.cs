@@ -21,11 +21,14 @@ public class CreateCovers : IRequestHandler<CreateCoverRequest, Cover>
     {
         request.Cover.Id = Guid.NewGuid().ToString();
         request.Cover.Premium = Premium.ComputePremium(request.Cover.StartDate, request.Cover.EndDate, request.Cover.Type);
-        var response = await _coversContext.AddCoverAsync(request.Cover).ConfigureAwait(false);
 
-        _auditer.AuditCover(request.Cover.Id, "POST");
+        Task<Cover> addCoverTask = _coversContext.AddCoverAsync(request.Cover);
+        await Task.WhenAll(
+            Task.Run(() => _auditer.AuditCover(request.Cover.Id, "POST"), cancellationToken),
+                  addCoverTask)
+            .ConfigureAwait(false);
 
-        return response;
+        return addCoverTask.Result;
     }
 }
 

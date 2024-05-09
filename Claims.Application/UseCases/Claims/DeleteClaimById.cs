@@ -17,9 +17,11 @@ public class DeleteClaimById : IRequestHandler<DeleteClaimByIdRequest, Unit>
 
     public async Task<Unit> Handle(DeleteClaimByIdRequest request, CancellationToken cancellationToken)
     {
-        _auditer.AuditClaim(request.Id, "DELETE");
 
-        await _claimsContext.DeleteClaimAsync(request.Id);
+        await Task.WhenAll(
+            Task.Run(() => _auditer.AuditClaim(request.Id, "DELETE"), cancellationToken),
+                _claimsContext.DeleteClaimAsync(request.Id))
+            .ConfigureAwait(false);
 
         return Unit.Value;
     }
