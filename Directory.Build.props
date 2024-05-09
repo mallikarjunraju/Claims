@@ -1,0 +1,9 @@
+<Project>
+  <!-- Common Build Settings -->
+  <PropertyGroup>
+	<ImplicitUsings>enable</ImplicitUsings>	  
+    <Nullable>enable</Nullable>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+</Project>
