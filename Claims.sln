@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Claims.Models", "Claims.Mod
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Claims.Application", "Claims.Application\Claims.Application.csproj", "{8FDD325E-6A01-411E-8DAC-BCDB1A39E7B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Claims.Infrastructure", "Claims.Infrastructure\Claims.Infrastructure.csproj", "{E8DA086B-DAEA-4802-8E1F-D135ED1892A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Claims.Infrastructure", "Claims.Infrastructure\Claims.Infrastructure.csproj", "{E8DA086B-DAEA-4802-8E1F-D135ED1892A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
