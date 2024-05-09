@@ -32,7 +32,6 @@ public class CreateClaims : IRequestHandler<CreateClaimsRequest, Claim>
             throw new RequestValidationException("Claim creation date must be within the period of the related Cover");
         }
 
-        // Todo: Claim Id should be generated and sent back ...should not be present in the request
         request.Claim.Id = claimId;
         var claimTask = _claimsRepository.AddClaimAsync(request.Claim);
 

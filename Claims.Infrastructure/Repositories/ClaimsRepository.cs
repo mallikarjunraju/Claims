@@ -2,17 +2,19 @@
 using Claims.Infrastructure.Exceptions;
 using Claims.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Claims.Infrastructure.Repositories;
 
-//Todo : check for exceptions in all methods
 public class ClaimsRepository : IClaimsRepository
 {
     private readonly InsuranceContext _context;
+    private readonly ILogger<ClaimsRepository> _logger;
 
-    public ClaimsRepository(DbContextOptions options, InsuranceContext context)
+    public ClaimsRepository(InsuranceContext context, ILogger<ClaimsRepository> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<Claim>> GetClaimsAsync()
@@ -27,24 +29,26 @@ public class ClaimsRepository : IClaimsRepository
         return claim;
     }
 
-    // Todo: Check save changes bool
     public async Task<Claim> AddClaimAsync(Claim claim)
     {
         _context.Claims.Add(claim);
 
-        await _context.SaveChangesAsync();
+        var numOfStateEntries = await _context.SaveChangesAsync();
+
+        if (numOfStateEntries == 0)
+        {
+            _logger.LogError("Claim not saved");
+        }
 
         return claim;
     }
 
     public async Task DeleteClaimAsync(string id)
     {
-        var claim = await GetClaimAsync(id);
-        if (claim is not null)
-        {
-            _context.Claims.Remove(claim);
+        var claim = await GetClaimAsync(id) ?? throw new DataNotFoundException("Claim not found");
 
-            await _context.SaveChangesAsync();
-        }
+        var entity = _context.Claims.Remove(claim);
+
+        await _context.SaveChangesAsync();
     }
 }
